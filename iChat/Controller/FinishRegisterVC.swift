@@ -106,7 +106,8 @@ class FinishRegisterVC: UIViewController {
     
     
     func gotoApp(){
-        //ProgressHUD.dismiss()
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: USER_DID_LOGIN_NOTIFICATION), object: nil, userInfo: [kUSERID : FUser.currentId()])
+        ProgressHUD.dismiss()
         self.clearTextField()
         self.dismissKeyboard()
         if #available(iOS 13.0, *) {

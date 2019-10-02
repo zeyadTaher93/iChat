@@ -99,15 +99,16 @@ class WelcomeVC: UIViewController {
     }
     
     func gotoApp(){
+        NotificationCenter.default.post(name: NSNotification.Name(rawValue: USER_DID_LOGIN_NOTIFICATION), object: nil, userInfo: [kUSERID : FUser.currentId()])
         dismissKeyboard()
-        //ProgressHUD.dismiss()
+        ProgressHUD.dismiss()
         clearTextField()
-        if #available(iOS 13.0, *) {
-            let mainView = UIStoryboard.init(name: "Main", bundle: nil).instantiateViewController(identifier: "AppHome") as! UITabBarController
+        
+            let mainView = UIStoryboard.init(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "AppHome") as! UITabBarController
             self.present(mainView, animated: true, completion: nil)
-        } else {
-            // Fallback on earlier versions
-        }
+        
+    
+
     }
     
 }
