@@ -40,7 +40,6 @@ class FinishRegisterVC: UIViewController {
                     ProgressHUD.showError(error?.localizedDescription)
                     return
                 }
-                
                 self.completeRegisterUser()
                 }
             
@@ -58,6 +57,18 @@ class FinishRegisterVC: UIViewController {
     }
     
     //MARK: Helper Func
+    func dismissKeyboard() {
+          self.view.endEditing(true)
+      }
+      func clearTextField()  {
+          firtNameTxtField.text = ""
+          lastNameTxtField.text = ""
+          countryTxtField.text = ""
+          cityTxtField.text = ""
+          phoneNumberTxtField.text = ""
+      }
+    
+    //MARK: Auth Functions
     
     func completeRegisterUser(){
         let fullName = firtNameTxtField.text! + " " + lastNameTxtField.text!
@@ -104,30 +115,18 @@ class FinishRegisterVC: UIViewController {
         }
     }
     
+    //MARK: Navigation
     
     func gotoApp(){
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: USER_DID_LOGIN_NOTIFICATION), object: nil, userInfo: [kUSERID : FUser.currentId()])
         ProgressHUD.dismiss()
         self.clearTextField()
         self.dismissKeyboard()
-        if #available(iOS 13.0, *) {
-            let mainView = UIStoryboard.init(name: "Main", bundle: nil).instantiateViewController(identifier: "AppHome") as! UITabBarController
+            let mainView = UIStoryboard.init(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "AppHome") as! UITabBarController
             self.present(mainView, animated: true, completion: nil)
-        } else {
-            // Fallback on earlier versions
-        }
     }
     
-    func dismissKeyboard() {
-        self.view.endEditing(true)
-    }
-    func clearTextField()  {
-        firtNameTxtField.text = ""
-        lastNameTxtField.text = ""
-        countryTxtField.text = ""
-        cityTxtField.text = ""
-        phoneNumberTxtField.text = ""
-    }
+  
     
 
 

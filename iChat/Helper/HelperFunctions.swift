@@ -118,6 +118,8 @@ func formatCallTime(date: Date) -> String {
 
 
 
+
+
 //MARK: UIImageExtension
 
 extension UIImage {
@@ -190,4 +192,6 @@ func imageFromInitials(firstName: String?, lastName: String?, withBlock: @escapi
     
     withBlock(img!)
 }
+
+
 

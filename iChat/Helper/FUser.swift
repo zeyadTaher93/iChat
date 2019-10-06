@@ -430,7 +430,7 @@ func updateCurrentUserInFirestore(withValues : [String : Any], completion: @esca
         
         userObject.setValuesForKeys(tempWithValues)
         
-        reference(.User).document(currentUserId).updateData(withValues) { (error) in
+        reference(.User).document(currentUserId).updateData(tempWithValues) { (error) in
             
             if error != nil {
                 

@@ -38,32 +38,41 @@ class WelcomeVC: UIViewController {
          dismissKeyboard()
         if emailTxtField.text != "" && passwordTxtField.text != "" && repeatPasswordTxtField.text != ""{
             
-            if passwordTxtField.text == repeatPasswordTxtField.text {
+            if passwordTxtField.text == repeatPasswordTxtField.text && passwordTxtField.text!.count >= 6 {
                 registerUser()
             }else {
-                ProgressHUD.showError("Password Fields are not matched!")
+                passwordTxtField.text!.count >= 6 ? ProgressHUD.showError("Password Fields are not matched!") : ProgressHUD.showError("Password is at least 6 character!")
+                
             }
             
-            
-            
         }else{
-            ProgressHUD.showError("The three fields are required!")
+            ProgressHUD.showError("ALl fields are required!")
         }
      }
+    
+    
      @IBAction func backGroundTapped(_ sender: Any){
          dismissKeyboard()
      }
+    
+    
+    
+    
+    
+    
 
     //MARK: Helper Func
     
     func dismissKeyboard() {
         self.view.endEditing(true)
     }
+    
     func clearTextField()  {
         emailTxtField.text = ""
         passwordTxtField.text = ""
         repeatPasswordTxtField.text = ""
     }
+    
     
     //MARK: Auth func
     
@@ -73,10 +82,7 @@ class WelcomeVC: UIViewController {
                 ProgressHUD.showError(error?.localizedDescription)
                 return
             }
-            
             self.gotoApp()
-            
-            
         }
     }
     
@@ -85,7 +91,6 @@ class WelcomeVC: UIViewController {
         clearTextField()
         dismissKeyboard()
     }
-    
     
     //MARK: Navigation
     
