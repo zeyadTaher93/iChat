@@ -110,10 +110,9 @@ class WelcomeVC: UIViewController {
         clearTextField()
         
             let mainView = UIStoryboard.init(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "AppHome") as! UITabBarController
-            self.present(mainView, animated: true, completion: nil)
+//            self.present(mainView, animated: true, completion: nil)
+        self.navigationController?.pushViewController(mainView, animated: true)
         
-    
-
     }
     
 }

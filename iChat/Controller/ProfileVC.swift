@@ -21,6 +21,7 @@ class ProfileVC: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        tableView.tableFooterView = UIView()
     }
     
     
@@ -74,6 +75,7 @@ class ProfileVC: UITableViewController {
     }
     //MARK: setup UI
     
+  
     func setupUI(){
         if user != nil {
             fullNameLbl.text = user!.fullname
