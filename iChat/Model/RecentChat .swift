@@ -7,11 +7,11 @@
 //
 
 import Foundation
+typealias CompletionHandler = (_ success:Bool) -> Void
 
-func createPrivateChat(user1: FUser , user2: FUser) -> String{
+func createPrivateChat(user1: FUser , user2: FUser ) -> String{
     let userID1 = user1.userId
     let userID2 = user2.userId
-
     var roomID = ""
     let value =  userID1.compare(userID2).rawValue
     if value < 0 {
@@ -23,15 +23,16 @@ func createPrivateChat(user1: FUser , user2: FUser) -> String{
     
     
     createRecent(members: members, chatRoomID: roomID, withUserUserName: "", type: kPRIVATE, users: [user1 , user2], groupAvatar: nil)
-    
+  
     return roomID
+   
 }
 
-func createRecent(members: [String] , chatRoomID: String , withUserUserName: String , type: String ,  users: [FUser]? , groupAvatar: String?){
+func createRecent(members: [String] , chatRoomID: String , withUserUserName: String , type: String ,  users: [FUser]? , groupAvatar: String? ){
     
     var tempMembers = members
     
-    reference(.Recent).whereField(kRECENTID, isEqualTo: chatRoomID).getDocuments { (snapshot, error) in
+    reference(.Recent).whereField(kCHATROOMID, isEqualTo: chatRoomID).getDocuments { (snapshot, error) in
         guard let snapshot = snapshot else {return}
         
         if !snapshot.isEmpty {
@@ -40,22 +41,25 @@ func createRecent(members: [String] , chatRoomID: String , withUserUserName: Str
                 if let currentUserID = currentRecent[kUSERID]{
                     if tempMembers.contains(currentUserID as! String ){
                         tempMembers.remove(at: tempMembers.firstIndex(of: currentUserID as! String)!)
+                        
                     }
                     
                 }
             }
-        }
-        
-        for userID in tempMembers {
-            createRecentItem(userID: userID, members: members, chatRoomID: chatRoomID, withhUserUserName: withUserUserName, type: type, users: users, groupAvatar: groupAvatar)
+          
+            
         }
     }
+    for userID in tempMembers {
+                         createRecentItem(userID: userID, members: members, chatRoomID: chatRoomID, withhUserUserName: withUserUserName, type: type, users: users, groupAvatar: groupAvatar)
+                     }
+    
 }
 
 func createRecentItem(userID: String , members: [String] , chatRoomID: String , withhUserUserName: String , type: String , users: [FUser]? , groupAvatar: String?){
     
-    let localRefernce = reference(.Recent).document()
-    let recentID = localRefernce.documentID
+    let localRefrernce = reference(.Recent).document(userID)
+    let recentID = localRefrernce.documentID
     let date = DateFormatter().string(from: Date())
     var recentItem:[String:Any]!
     
@@ -104,6 +108,6 @@ func createRecentItem(userID: String , members: [String] , chatRoomID: String , 
     
     }
    
-    localRefernce.setData(recentItem)
+    localRefrernce.setData(recentItem)
     
 }

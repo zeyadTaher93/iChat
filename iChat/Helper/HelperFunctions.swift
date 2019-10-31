@@ -24,6 +24,16 @@ func dateFormatter() -> DateFormatter {
     return dateFormatter
 }
 
+func readTimeFrom(dateString: String) -> String {
+    let date = dateFormatter().date(from: dateString)
+    let currentDateFormat = dateFormatter()
+    currentDateFormat.dateFormat = "HH:mm"
+    return currentDateFormat.string(from: date!)
+}
+
+
+
+
 func imageFromData(pictureData: String, withBlock: (_ image: UIImage?) -> Void) {
     
     var image: UIImage?

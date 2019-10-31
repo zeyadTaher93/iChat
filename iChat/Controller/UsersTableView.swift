@@ -132,8 +132,15 @@ class UsersTableView: UITableViewController , UISearchResultsUpdating , UserCell
             let sectionTitle = self.sectionTitleList[indexPath.section]
             user = self.allusersGrouped[sectionTitle]![indexPath.row]
         }
-            
-        createPrivateChat(user1: FUser.currentUser()!, user2: user)
+        
+        let chattingVC = ChattingVC()
+        chattingVC.hidesBottomBarWhenPushed = true
+        //chattingVC.title = user.fullname
+        chattingVC.membersID =  [FUser.currentId(), user.userId]
+        chattingVC.membetsToPush = [FUser.currentId(), user.userId]
+        chattingVC.chatRoomID = createPrivateChat(user1: FUser.currentUser()!, user2: user)
+        chattingVC.isGroup = false
+        self.navigationController?.pushViewController(chattingVC, animated: true)
         
     }
     
@@ -143,17 +150,17 @@ class UsersTableView: UITableViewController , UISearchResultsUpdating , UserCell
         switch sender.selectedSegmentIndex {
         case 0:
             loadUsers(filter: kCITY)
-            print("city")
+            
             
         case 1:
             loadUsers(filter: kCOUNTRY)
-            print("country")
+           
         case 2:
             loadUsers(filter: "")
-            print("all")
+           
 
-        default:
-            print("a7a")
+        default: break
+            
         }
         
     }
@@ -184,7 +191,7 @@ class UsersTableView: UITableViewController , UISearchResultsUpdating , UserCell
             self.sectionTitleList = []
             
             if error != nil {
-                print( error!.localizedDescription)
+                print(error!.localizedDescription)
                 ProgressHUD.dismiss()
                 self.tableView.reloadData()
                 return
@@ -216,7 +223,7 @@ class UsersTableView: UITableViewController , UISearchResultsUpdating , UserCell
        
         
     }
-    
+   
     
     //MARK: search result
     

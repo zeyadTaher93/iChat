@@ -24,13 +24,6 @@ class ChatVC: UIViewController , UITableViewDelegate , UITableViewDataSource , R
     override func viewWillAppear(_ animated: Bool) {
         loadRecent()
         tableView.tableFooterView = UIView()
-        
-             
-//        search.searchResultsUpdater = self
-//        search.obscuresBackgroundDuringPresentation = false
-//        search.searchBar.placeholder = "Search Chat"
-//        navigationItem.searchController = search
-//        definesPresentationContext = true
     }
     override func viewWillDisappear(_ animated: Bool) {
         recentListener.remove()
@@ -42,7 +35,7 @@ class ChatVC: UIViewController , UITableViewDelegate , UITableViewDataSource , R
         navigationItem.searchController = searchBar
         navigationItem.hidesSearchBarWhenScrolling = true
         searchBar.searchResultsUpdater  = self
-        searchBar.dimsBackgroundDuringPresentation = false
+        //searchBar.dimsBackgroundDuringPresentation = false
         definesPresentationContext = true
         
         setTableViewWithHeader()
@@ -82,6 +75,63 @@ class ChatVC: UIViewController , UITableViewDelegate , UITableViewDataSource , R
         
         return cell
     }
+    
+    //MARK: Tableview Delegate
+      
+      func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+          return true
+      }
+      
+      func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+          var tempRecent: NSDictionary!
+                  
+                  if searchBar.isActive && searchBar.searchBar.text != "" {
+                      tempRecent = filteredREcent[indexPath.row]
+                  }else {
+                      tempRecent = recentChat[indexPath.row]
+                  }
+        
+        var mute = false
+        var muteTitle = "UnMute"
+
+        if (tempRecent[kMEMBERSTOPUSH] as! [String]).contains(FUser.currentId()) {
+             mute = true
+             muteTitle = "Mute"
+        }
+        
+        let deletationAction = UITableViewRowAction(style: .default, title: "Delete") { (action, indexpath) in
+            self.recentChat.remove(at: indexpath.row)
+            self.deleteRecent(recentChatDic: tempRecent)
+            tableView.reloadData()
+        }
+        let muteAction = UITableViewRowAction(style: .default, title: muteTitle) { (action, indexpath) in
+            print("mute user at \(indexpath)")
+        }
+        muteAction.backgroundColor = #colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1)
+        return [muteAction , deletationAction]
+      }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+            tableView.deselectRow(at: indexPath, animated: true)
+            var recent: NSDictionary!
+            
+            if searchBar.isActive && searchBar.searchBar.text != "" {
+                recent = filteredREcent[indexPath.row]
+            }else {
+                recent = recentChat[indexPath.row]
+            }
+        
+        restartRecentChat(recentChat: recent)
+        let chattingVC = ChattingVC()
+        chattingVC.hidesBottomBarWhenPushed = true
+        //chattingVC.title = (recent[kWITHUSERFULLNAME] as! String)
+        chattingVC.chatRoomID = (recent[kCHATROOMID] as! String)
+        chattingVC.membersID = (recent[kMEMBERS] as! [String])
+        chattingVC.membetsToPush = (recent[kMEMBERSTOPUSH] as! [String])
+        chattingVC.isGroup = (recent[kTYPE] as! String) == kGROUP
+        self.navigationController?.pushViewController(chattingVC, animated: true)
+        
+    }
 
     //load recent chat
     
@@ -113,14 +163,17 @@ class ChatVC: UIViewController , UITableViewDelegate , UITableViewDataSource , R
     func setTableViewWithHeader(){
         let headerView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: 45))
         let buttonView = UIView(frame: CGRect(x: 0, y: 5, width: tableView.frame.size.width, height: 35))
-        let button = UIButton(frame: CGRect(x:  tableView.frame.size.width - 110, y: 10, width: 100, height: 20))
+        let button = UIButton(frame: CGRect(x:  tableView.frame.size.width - 135, y: 10, width: 100, height: 20))
         button.addTarget(self, action: #selector(groupBtnPressed), for: .touchUpInside)
         button.setTitle("New group", for: .normal)
         let titleColor = #colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1)
         button.setTitleColor(titleColor, for: .normal)
+        button.contentMode = .scaleAspectFit
         buttonView.addSubview(button)
         headerView.addSubview(buttonView)
+       
         tableView.tableHeaderView = headerView
+        
     }
     
     @objc func groupBtnPressed() {
@@ -171,4 +224,27 @@ class ChatVC: UIViewController , UITableViewDelegate , UITableViewDataSource , R
        func updateSearchResults(for searchController: UISearchController) {
         filterResultsfor(searchText: searchController.searchBar.text!)
        }
+    
+    //Delete Function
+    
+    func deleteRecent(recentChatDic: NSDictionary){
+        if let recentChatId = recentChatDic[kRECENTID] as? String {
+            reference(.Recent).document(recentChatId).delete()
+        }
+    }
+    
+    //restart recent Chat
+    
+    func restartRecentChat(recentChat: NSDictionary){
+        if recentChat[kTYPE] as! String == kPRIVATE {
+            
+            createRecent(members: recentChat[kMEMBERSTOPUSH] as! [String], chatRoomID: recentChat[kCHATROOMID]as! String, withUserUserName: FUser.currentUser()!.firstname, type: kPRIVATE, users: [FUser.currentUser()!], groupAvatar: nil)
+            
+            
+        }else {
+            createRecent(members: recentChat[kMEMBERSTOPUSH] as! [String], chatRoomID: recentChat[kCHATROOMID]as! String, withUserUserName: recentChat[kWITHUSERFULLNAME]as! String, type: kGROUP, users: nil, groupAvatar: recentChat[kAVATAR] as? String)
+        }
+        
+        
+    }
 }
