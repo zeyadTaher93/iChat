@@ -277,6 +277,7 @@ class ChattingVC:  MessagesViewController   {
         
         messageInputBar.inputTextView.text = ""
         //updateLastMessageInRecent(text: text!)
+        
     }
     
     func updateLastMessageInRecent(text: String){
@@ -370,12 +371,12 @@ class ChattingVC:  MessagesViewController   {
     }
     
     func insertInitailMessages(messagesDic: NSDictionary)->Bool {
-        let incomingMessage = IncomingMessage.instance
+        
         if messagesDic[kSENDERID] as! String != FUser.currentId() {
             // update delivet status
         }
         
-        let message = incomingMessage.createMessage(messageDic: messagesDic, chatRoomID: self.chatRoomID)
+        let message = IncomingMessage.createMessage(messageDic: messagesDic, chatRoomID: self.chatRoomID)
         if message != nil {
             objectMessages.append(messagesDic)
             messages.append(message!)
@@ -432,7 +433,8 @@ class ChattingVC:  MessagesViewController   {
     }
     
     func insertNewMessage(messageDic: NSDictionary){
-        let incomingMessage = IncomingMessage().createMessage(messageDic: messageDic, chatRoomID: self.chatRoomID)
+        
+        let incomingMessage = IncomingMessage.createMessage(messageDic: messageDic, chatRoomID: self.chatRoomID)
         objectMessages.insert(messageDic, at: 0)
         messages.insert(incomingMessage!, at: 0)
     }
@@ -602,7 +604,8 @@ extension ChattingVC : MessagesDataSource {
     }
     func cellBottomLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
         let data = messages[indexPath.row]
-        if data.senderID == FUser.currentId(){
+        
+        if data.sender.senderId == FUser.currentId(){
             return 13
         }else {
             

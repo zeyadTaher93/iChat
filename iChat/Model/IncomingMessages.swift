@@ -9,41 +9,70 @@
 import Foundation
 import MessageKit
 
-class IncomingMessage{
+class IncomingMessage: MessageType{
+    var sender: SenderType
+    var messageId: String
+    var sentDate: Date
+    var kind: MessageKind
     
-    static let instance = IncomingMessage()
-    
-    var text: String?
-    var messageID: String?
-    var senderName: String?
-    var senderID: String?
-    var date: Date?
-
-    
-    
-    init() {
-
+     init(kind: MessageKind, sender: Sender, messageId: String, date: Date) {
+        self.kind = kind
+        self.sender = sender
+        self.messageId = messageId
+        self.sentDate = date
     }
+    
+    convenience init(image: UIImage, sender: Sender, messageId: String, date: Date) {
+        let mediaItem = ImageMediaItem(image: image)
+        self.init(kind: .photo(mediaItem), sender: sender, messageId: messageId, date: date)
+    }
+    
+    
+    
+    
+    
+    
+    
+    //static let instance = IncomingMessage()
+    
+    //var text: String?
+    //var messageID: String?
+    //var senderName: String?
+    //var senderID: String?
+    //var date: Date?
+    
+    
+    
+//    init() {
+//
+//
+//
+//    }
+    
+    
+    
+    
+    
   
-    init(text: String , messageId: String , senderName: String , senderId: String , date: Date) {
-        self.text = text
-        self.messageID = messageId
-        self.senderID = senderId
-        self.senderName = senderName
-        self.date = date
-    }
-    init(messageID: String , senderName: String , date: Date , image: UIImage) {
-        //let mediaItem = ImageMediaItem(image: image)
-        self.messageID = messageID
-        self.senderName = senderName
-        self.date = date
-        self.image = image
-        
-    }
+//    init(text: String , messageId: String , senderName: String , senderId: String , date: Date) {
+//        self.text = text
+//        self.messageID = messageId
+//        self.senderID = senderId
+//        self.senderName = senderName
+//        self.date = date
+//    }
+//    init(messageID: String , senderName: String , date: Date , image: UIImage) {
+//        //let mediaItem = ImageMediaItem(image: image)
+//        self.messageID = messageID
+//        self.senderName = senderName
+//        self.date = date
+//        self.image = image
+//
+//    }
    
     
     
-    func createMessage(messageDic: NSDictionary , chatRoomID: String) -> IncomingMessage? {
+    class func createMessage(messageDic: NSDictionary , chatRoomID: String) -> IncomingMessage? {
         var message: IncomingMessage?
         let type = messageDic[kTYPE] as! String
         
@@ -63,11 +92,11 @@ class IncomingMessage{
         if message != nil {
             return message!
         }
-        return IncomingMessage(text: "", messageId: "", senderName: "", senderId: "", date: Date())
-        
+        //return IncomingMessage(text: "", messageId: "", senderName: "", senderId: "", date: Date())
+        return IncomingMessage(kind: .text(""), sender: .init(id: "", displayName: ""), messageId: "", date: Date())
     }
     
-    func creatTextMessage(message: NSDictionary , chatRoomID: String) -> IncomingMessage{
+   class func creatTextMessage(message: NSDictionary , chatRoomID: String) -> IncomingMessage{
            let senderName = message[kSENDERNAME] as! String
            let senderId = message[kSENDERID] as! String
            var date: Date!
@@ -84,8 +113,8 @@ class IncomingMessage{
            }
 
 
-        return IncomingMessage(text: text, messageId:message[kMESSAGEID] as! String , senderName: senderName, senderId: senderId, date: date)
-        
+        //return IncomingMessage(text: text, messageId:message[kMESSAGEID] as! String , senderName: senderName, senderId: senderId, date: date)
+        return IncomingMessage(kind: .text(text), sender: .init(id: senderId, displayName: senderName), messageId: message[kMESSAGEID] as! String, date: date)
        }
     
     //MEdia Item functions
@@ -109,10 +138,10 @@ class IncomingMessage{
     
     
   
-    var image:UIImage?
-    func createImageMessage(message: NSDictionary) -> IncomingMessage {
+    static var image:UIImage? = UIImage()
+    class func createImageMessage(message: NSDictionary) -> IncomingMessage {
         let senderName = message[kSENDERNAME] as! String
-        //let senderId = message[kSENDERID] as! String
+        let senderId = message[kSENDERID] as! String
         var date: Date!
         if let created = message[kDATE] {
             if (created as! String).count != 14 {
@@ -123,14 +152,20 @@ class IncomingMessage{
         }else {
              date = Date()
         }
-    
+    print("before down load image")
         downloadImage(imageUrl: message[kPICTURE] as! String) { (image) in
             if image != nil {
                 self.image = image
+                ChattingVC.shared.messagesCollectionView.reloadData()
+            }else{
+                print("we are in deep shit")
             }
+            
+             
         }
-        
-        return IncomingMessage(messageID: message[kMESSAGEID] as! String, senderName: senderName, date: date, image: self.image as! UIImage)
+        return IncomingMessage(image: self.image!, sender: .init(id: senderId, displayName: senderName), messageId: message[kMESSAGEID] as! String, date: date)
+      
+       
     }
     
 //    func returnOutgoingMessageStatus(senderID: String)-> Bool {
@@ -142,26 +177,26 @@ class IncomingMessage{
     
     
 }
-extension IncomingMessage: MessageType {
-    var sender: SenderType {
-        return Sender(id: senderID!, displayName: senderName!)
-    }
-    
-    var messageId: String {
-        return messageID!
-    }
-    
-    var sentDate: Date {
-        return date!
-    }
-    
-    var kind: MessageKind {
-        return .text(text!)
-       // return .photo(self.image)
-    }
-    
-    
-}
+//extension IncomingMessage: MessageType {
+//    var sender: SenderType {
+//        return Sender(id: senderID!, displayName: senderName!)
+//    }
+//
+//    var messageId: String {
+//        return messageID!
+//    }
+//
+//    var sentDate: Date {
+//        return date!
+//    }
+//
+//    var kind: MessageKind {
+//        return .text(text!)
+//       // return .photo(self.image)
+//    }
+//
+//
+//}
 
     
       

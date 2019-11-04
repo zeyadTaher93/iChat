@@ -50,14 +50,15 @@ func uploadImage(image: UIImage , chatRoomID: String , view: UIView , completion
 
 }
 
-func downloadImage(imageUrl: String , completion: @escaping (_ image: UIImage?)->Void){
+func downloadImage(imageUrl: String , completion: @escaping(_ image: UIImage?) -> Void){
     let imageURL = NSURL(string: imageUrl)
-    print(imageURL!)
-    let imageFileName = (imageUrl.components(separatedBy: "%").last)!.components(separatedBy: "?").first
-    print(imageFileName!)
+    //print(imageURL!)
+    let imageFileName = (imageUrl.components(separatedBy: "%").last)!.components(separatedBy: "?").first!
+    //print(imageFileName!)
     
-    if fileExsistsAtPath(path: imageFileName!) {
-        if let contentOfFile = UIImage(contentsOfFile: fileInDocumentDirectory(fileName: imageFileName!)){
+    if fileExsistsAtPath(path: imageFileName) {
+        if let contentOfFile = UIImage(contentsOfFile: fileInDocumentDirectory(fileName: imageFileName)){
+            print("fuchk")
             completion(contentOfFile)
         }else {
             print("couldnot complete generation")
@@ -66,23 +67,44 @@ func downloadImage(imageUrl: String , completion: @escaping (_ image: UIImage?)-
         
     }else{
         let downloadQueue = DispatchQueue(label: "Downloading image")
+        
         downloadQueue.async {
-            let data = NSData(contentsOf: imageURL! as URL)
-            if data != nil {
+            print(imageURL!)
+            print("downloadQueue")
+            if let data = NSData(contentsOf: imageURL! as URL){
                 var docURL = getDocumentsURL()
-                docURL = docURL.appendingPathComponent(imageFileName!, isDirectory: false)
-                data?.write(to: docURL, atomically: true)
-                let imageToReturn = UIImage(data: data! as Data)
-                DispatchQueue.main.async {
-                    completion(imageToReturn)
-                }
-                
+                              docURL = docURL.appendingPathComponent(imageFileName, isDirectory: false)
+                data.write(to: docURL, atomically: true)
+                let imageToReturn = UIImage(data: data as Data)
+                              DispatchQueue.main.async {
+                                  print("this is the imageToReturn \(imageToReturn)")
+                                  completion(imageToReturn)
+                              }
             }else {
                 DispatchQueue.main.async {
                     print("there is no image in the database")
                     completion(nil)
                 }
             }
+            //let data = NSData(contentsOf: imageURL! as URL)
+            
+           
+//            if data != nil {
+//                var docURL = getDocumentsURL()
+//                docURL = docURL.appendingPathComponent(imageFileName, isDirectory: false)
+//                data?.write(to: docURL, atomically: true)
+//                let imageToReturn = UIImage(data: data! as Data)
+//                DispatchQueue.main.async {
+//                    print("this is the imageToReturn \(imageToReturn)")
+//                    completion(imageToReturn)
+//                }
+//
+//            }else {
+//                DispatchQueue.main.async {
+//                    print("there is no image in the database")
+//                    completion(nil)
+//                }
+//            }
         }
     }
 }
